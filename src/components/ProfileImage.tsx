@@ -15,14 +15,30 @@ const ProfileImage = () => {
 		return null
 	}
 
+	const imageSrc = session?.user?.image
+
+	const firstChar = (email: string) => {
+		return email.charAt(0).toLocaleUpperCase()
+	}
+
 	return (
-		<Image
-			src={session?.user?.image || ""}
-			alt='Profile image'
-			width={75}
-			height={75}
-			style={imageStyle}
-		/>
+		<>
+			{imageSrc ? (
+				<Image
+					src={imageSrc}
+					alt='Profile image'
+					width={75}
+					height={75}
+					className='h-12 w-12 rounded-full'
+				/>
+			) : (
+				<div className='flex items-center justify-center h-12 w-12 bg-gray-500 rounded-full'>
+					<span className='text-white text-2xl font-bold'>
+						{firstChar(session?.user?.email || '')}
+					</span>
+				</div>
+			)}
+		</>
 	)
 }
 
