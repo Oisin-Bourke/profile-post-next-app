@@ -2,8 +2,13 @@
 
 import { useState, FormEvent } from "react"
 import { useSession } from "next-auth/react"
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies"
 
-const CreatePost = () => {
+type PropTypes = {
+	token: RequestCookie | undefined
+}
+
+const CreatePost = ({ token }: PropTypes) => {
 	const [title, setTitle] = useState("")
 	const [content, setContent] = useState("")
 	const { data: session } = useSession()
@@ -25,6 +30,7 @@ const CreatePost = () => {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
+						"Authorization": `Bearer ${token?.value}`,
 					},
 					body: JSON.stringify(newPost),
 				}
