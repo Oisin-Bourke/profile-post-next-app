@@ -12,6 +12,7 @@ const CreatePost = ({ token }: PropTypes) => {
 	const [title, setTitle] = useState("")
 	const [content, setContent] = useState("")
 	const { data: session } = useSession()
+	console.log('Client session', session)
 	const userId = session?.user.id
 	console.log("USERID", userId)
 

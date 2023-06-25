@@ -7,6 +7,7 @@ const UserPage = async () => {
 	const session = await getServerSession(authOptions)
 	const token = cookies().get("next-auth.session-token")
 	console.log(token)
+	console.log('SERVER SESSION', session)
 
 	if (!session) {
 		return <p>You can't access this page!</p>

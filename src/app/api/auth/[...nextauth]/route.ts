@@ -1,19 +1,16 @@
-import NextAuth, { Session, User, Account } from "next-auth"
+import NextAuth, { Session, User, Account, NextAuthOptions } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
 import GithubProvider from "next-auth/providers/github"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
 import { Adapter } from "next-auth/adapters"
+import jwt from "jsonwebtoken"
 
 // All requests to /api/auth/* (signIn, callback, signOut, etc.) will automatically be handled by NextAuth.js.
 
-interface SessionParams {
-	session: Session
-	user: User
-	token: any
-}
+const secret = "yellow"
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
 	adapter: MongoDBAdapter(clientPromise) as Adapter,
 	providers: [
 		EmailProvider({
@@ -26,17 +23,23 @@ export const authOptions = {
 		}),
 	],
 	callbacks: {
-		async session({ session, user }: SessionParams) {
+		async session({ session, token }) {
 			if (session) {
-				session.user.id = user.id
+				session.user.id = token.sub
 			}
-
 			return session
 		},
 	},
 	session: {
-		// force to use jwt
-		// strategy: "jwt",
+		strategy: "jwt",
+	},
+	jwt: {
+		encode: async ({ secret, token }) => {
+			return jwt.sign(token as object, secret)
+		},
+		decode: async ({ secret, token }) => {
+			return jwt.verify(token, secret)
+		},
 	},
 }
 
