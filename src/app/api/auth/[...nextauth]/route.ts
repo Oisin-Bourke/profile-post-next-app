@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { Session, User, Account } from "next-auth"
 import EmailProvider from "next-auth/providers/email"
 import GithubProvider from "next-auth/providers/github"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
@@ -7,7 +7,14 @@ import { Adapter } from "next-auth/adapters"
 
 // All requests to /api/auth/* (signIn, callback, signOut, etc.) will automatically be handled by NextAuth.js.
 
+interface SessionParams {
+	session: Session
+	user: User
+	token: any
+}
+
 export const authOptions = {
+	adapter: MongoDBAdapter(clientPromise) as Adapter,
 	providers: [
 		EmailProvider({
 			server: process.env.EMAIL_SERVER,
@@ -18,34 +25,19 @@ export const authOptions = {
 			clientSecret: process.env.GITHUB_SECRET || "",
 		}),
 	],
-	adapter: MongoDBAdapter(clientPromise) as Adapter,
-	// callbacks: {
-	// 	async signIn({ user }: any) {
-	// 		// Called when a user signs in
-	// 		try {
-	// 			const client = await clientPromise
-	// 			const db = client.db("profile_post")
-	// 			const collection = db.collection("users")
+	callbacks: {
+		async session({ session, user }: SessionParams) {
+			if (session) {
+				session.user.id = user.id
+			}
 
-	// 			const existingUser = await collection.findOne({
-	// 				email: user.email,
-	// 			})
-
-	// 			if (!existingUser) {
-	// 				await collection.insertOne({
-	// 					email: user.email,
-	// 					name: user.name,
-	// 					// Additional user data
-	// 				})
-	// 			}
-	// 		} catch (error) {
-	// 			console.log(error)
-	// 			throw new Error("Failed to create user in the database.")
-	// 		}
-
-	// 		return true // Return true to allow sign in
-	// 	},
-	// },
+			return session
+		},
+	},
+	session: {
+		// force to use jwt
+		// strategy: "jwt",
+	},
 }
 
 const handler = NextAuth(authOptions)
