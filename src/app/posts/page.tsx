@@ -1,4 +1,5 @@
 import Post from "../../types/post"
+import PostCard from "@/components/PostCard"
 
 async function getData() {
 	const result = await fetch("http://127.0.0.1:8000/posts")
@@ -15,12 +16,14 @@ const PostPage = async () => {
 
 	return (
 		<div>
-			<h1>Posts Page - Public</h1>
 			<ul>
 				{posts.map((post) => (
-					<li key={post.id}>
-						{post.title} - {post.content}
-					</li>
+					<PostCard
+						key={post.id}
+						title={post.title}
+						content={post.content}
+						author={post.author}
+					/>
 				))}
 			</ul>
 		</div>

@@ -26,7 +26,7 @@ const CreatePost = ({ token }: PropTypes) => {
 
 		try {
 			const response = await fetch(
-				`http://127.0.0.1:8000/users/${userId}/posts`,
+				`http://127.0.0.1:8000/posts`,
 				{
 					method: "POST",
 					headers: {

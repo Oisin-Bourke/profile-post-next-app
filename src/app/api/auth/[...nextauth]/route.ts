@@ -1,14 +1,11 @@
-import NextAuth, { Session, User, Account, NextAuthOptions } from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
+import { JWT } from "next-auth/jwt"
 import EmailProvider from "next-auth/providers/email"
 import GithubProvider from "next-auth/providers/github"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import clientPromise from "@/lib/mongodb"
 import { Adapter } from "next-auth/adapters"
 import jwt from "jsonwebtoken"
-
-// All requests to /api/auth/* (signIn, callback, signOut, etc.) will automatically be handled by NextAuth.js.
-
-const secret = "yellow"
 
 export const authOptions: NextAuthOptions = {
 	adapter: MongoDBAdapter(clientPromise) as Adapter,
@@ -18,8 +15,8 @@ export const authOptions: NextAuthOptions = {
 			from: process.env.EMAIL_FROM,
 		}),
 		GithubProvider({
-			clientId: process.env.GITHUB_CLIENT_ID || "",
-			clientSecret: process.env.GITHUB_SECRET || "",
+			clientId: process.env.GITHUB_CLIENT_ID as string,
+			clientSecret: process.env.GITHUB_SECRET as string,
 		}),
 	],
 	callbacks: {
@@ -34,11 +31,27 @@ export const authOptions: NextAuthOptions = {
 		strategy: "jwt",
 	},
 	jwt: {
-		encode: async ({ secret, token }) => {
-			return jwt.sign(token as object, secret)
+		encode: async ({ secret, token}) => {
+			return new Promise<string>((resolve, reject) => {
+				jwt.sign(token as object, secret, (err, signedToken) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(signedToken as string)
+					}
+				})
+			})
 		},
 		decode: async ({ secret, token }) => {
-			return jwt.verify(token, secret)
+			return new Promise<JWT|null>((resolve, reject) => {
+				jwt.verify(token as string, secret, (err, verifiedToken) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(verifiedToken as JWT)
+					}
+				})
+			})
 		},
 	},
 }

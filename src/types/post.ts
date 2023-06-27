@@ -1,6 +1,7 @@
 export default interface Post {
-	id: string //should this be a mongo id?
+	id?: string //should this be a mongo id?
 	title: string
 	content: string
 	userId: string
+	author?: string
 }

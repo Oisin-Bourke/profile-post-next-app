@@ -3,11 +3,6 @@
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 
-const imageStyle = {
-	borderRadius: "50%",
-	border: "1px solid #fff",
-}
-
 const ProfileImage = () => {
 	const { data: session } = useSession()
 
